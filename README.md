@@ -1,2 +1,2 @@
 # imgurCrawler
-URLs bruteforcer for imgur.com
+URL bruteforcer for imgur.com
