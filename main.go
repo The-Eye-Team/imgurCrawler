@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/valyala/fasthttp"
 	"math/rand"
 	"os"
 	"sync"
@@ -29,8 +30,21 @@ func generateID(length int) string {
 
 func crawlID(index int, worker *sync.WaitGroup) {
 	defer worker.Done()
-	fmt.Print(index)
-	fmt.Println(" - " + generateID(7))
+
+	id := generateID(7)
+	statusCode, body, err := fasthttp.Get(make([]byte, 0), "https://imgur.com/gallery/"+id+"/comment/best/hit.json")
+
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	if statusCode != 200 {
+		fmt.Print(statusCode)
+	} else {
+		fmt.Println(string(body))
+	}
+
+	fmt.Println(" - " + id)
 }
 
 func main() {
