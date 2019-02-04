@@ -5,9 +5,11 @@ import (
 	"github.com/valyala/fasthttp"
 	"math/rand"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/The-Eye-Team/uarand"
 	"github.com/labstack/gommon/color"
 )
 
@@ -30,21 +32,31 @@ func generateID(length int) string {
 
 func crawlID(index int, worker *sync.WaitGroup) {
 	defer worker.Done()
-
 	id := generateID(7)
-	statusCode, body, err := fasthttp.Get(make([]byte, 0), "https://imgur.com/gallery/"+id+"/comment/best/hit.json")
+
+	request := fasthttp.AcquireRequest()
+	request.Header.SetUserAgent(uarand.GetRandom())
+	//request.SetRequestURI("https://imgur.com/gallery/"+id+"/comment/best/hit.json")
+	request.SetRequestURI("https://i.imgur.com/" + id + ".png")
+
+	response := fasthttp.AcquireResponse()
+
+	err := fasthttp.Do(request, response)
 
 	if err != nil {
 		fmt.Print(err)
+		return
 	}
+
+	statusCode := response.StatusCode()
 
 	if statusCode != 200 {
-		fmt.Print(statusCode)
+		fmt.Println(strconv.Itoa(statusCode) + " - " + id)
+		return
 	} else {
-		fmt.Println(string(body))
+		fmt.Println("FOUND" + " - " + id)
+		//fmt.Println(string(response.Body()))
 	}
-
-	fmt.Println(" - " + id)
 }
 
 func main() {
